@@ -3,7 +3,7 @@ import { PrismaService } from '../prisma.service';
 import { Wallet } from '@prisma/client';
 
 @Injectable()
-export class WalletService {
+export class WalletDbService {
   constructor(private prisma: PrismaService) {}
 
   async getWallet(walletId: string): Promise<Wallet | null> {

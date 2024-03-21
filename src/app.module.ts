@@ -2,10 +2,11 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PrismaDbModule } from './prisma-db/prisma-db.module';
-import { WalletService } from './prisma-db/wallets/wallet.service';
+import { WalletDbService } from './prisma-db/wallets/wallet.service';
+import { ScheduleModule } from '@nestjs/schedule';
 @Module({
-  imports: [PrismaDbModule],
+  imports: [PrismaDbModule, ScheduleModule.forRoot()],
   controllers: [AppController],
-  providers: [AppService, WalletService],
+  providers: [AppService, WalletDbService],
 })
 export class AppModule {}

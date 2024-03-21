@@ -46,4 +46,37 @@ export class WalletDbService {
     const wallet = await this.getWallet(walletId);
     return wallet?.lastTrackedTimeStamp ?? '';
   }
+
+  async updateWalletsFields(
+    walletIds: string[],
+    walletsLatestTxnData: Record<
+      string,
+      {
+        collectionId: string;
+        transactionId: string;
+        From: string;
+        To: string;
+        TimeStamp: string;
+      }
+    >,
+  ) {
+    try {
+      for (const walletId of walletIds) {
+        const wallet = await this.getWallet(walletId);
+        const latestTxnData = walletsLatestTxnData[walletId];
+        if (latestTxnData) {
+          await this.prisma.wallet.update({
+            where: { wId: walletId },
+            data: {
+              lastTrackedTransaction: latestTxnData.transactionId,
+              lastTrackedTimeStamp: latestTxnData.TimeStamp,
+            },
+          });
+        }
+      }
+    } catch (error) {
+      console.error('An error occurred while updating wallets:', error);
+      throw error;
+    }
+  }
 }

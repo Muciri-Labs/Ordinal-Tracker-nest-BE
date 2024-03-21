@@ -1,0 +1,78 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum TrackType {
+  percentage
+  absolute_value
+}
+
+model User {
+  uId              String            @id @default(cuid())
+  username         String            @unique
+  email            String            @unique
+  password         String
+  ownedCollections User_Collection[]
+  wallets          Wallet[]
+  floorAlerts      Floor_Alerts[]
+  userWatchlists   User_Watchlist[]
+}
+
+model User_Collection {
+  uCId         String     @id @default(cuid())
+  uId          String
+  user         User       @relation(fields: [uId], references: [uId])
+  collectionId String
+  collection   Collection @relation(fields: [collectionId], references: [cId])
+  walletId     String
+  wallet       Wallet     @relation(fields: [walletId], references: [wId])
+
+  @@unique([uId, collectionId, walletId])
+}
+
+model User_Watchlist {
+  uWid         String     @id @default(cuid())
+  uId          String
+  user         User       @relation(fields: [uId], references: [uId])
+  collectionId String
+  collection   Collection @relation(fields: [collectionId], references: [cId])
+
+  @@unique([uId, collectionId])
+}
+
+model Collection {
+  cId             String            @id
+  name            String
+  description     String
+  image           String
+  userCollections User_Collection[]
+  floorAlerts     Floor_Alerts[]
+  userWatchlists  User_Watchlist[]
+}
+
+model Wallet {
+  wId                    String            @id
+  uId                    String
+  user                   User              @relation(fields: [uId], references: [uId])
+  alertsEnabled          Boolean
+  lastTrackedTransaction String
+  lastTrackedTimeStamp   String
+  userCollections        User_Collection[]
+}
+
+model Floor_Alerts {
+  aId          String     @id @default(cuid())
+  uId          String
+  user         User       @relation(fields: [uId], references: [uId])
+  collectionId String
+  collection   Collection @relation(fields: [collectionId], references: [cId])
+  trackType    TrackType
+  refPrice     Int
+  direction    Boolean
+  value        Int
+}

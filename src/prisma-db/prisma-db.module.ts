@@ -4,6 +4,6 @@ import { WalletDbService } from './wallets/wallet.service';
 
 @Module({
   providers: [PrismaService, WalletDbService],
-  exports: [PrismaService, WalletDbService],
+  exports: [WalletDbService],
 })
 export class PrismaDbModule {}

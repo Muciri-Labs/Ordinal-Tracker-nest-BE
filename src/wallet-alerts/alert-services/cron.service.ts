@@ -24,15 +24,24 @@ export class CronService {
     //extract wallet ids
     const walletIds = wallets.map((wallet) => wallet.wId);
     //call simple hash API to fetch wallet activity
-    const mockWalletIds = [
-      'bc1pgg09mqmyd7zknl4yu35tf0acm5h6eemv7k5efw9k4sxzt8ss7ymskzxr85',
-      'bc1p5vnzpcfse6ycn6wkrjyu0xhptvg95z22jxxlntpx20ph2jk8eqyqshgepj',
-      'bc1pk60fcp57tmg8efxcp5qqqadkcre2953avnm0934n3anc0p5fyhrqmepj86',
-      'bc1paqnrzwn9rcvq7r52ea7ym7ve99e7psurfjgfaj2quj7x2fftej8q5rfuc9',
-    ];
     try {
-      const walletsLatestTxnData = await this.fetchService.fetchWalletsLatestTxn(mockWalletIds);
+      const walletsLatestTxnData: Record<
+        string,
+        {
+          collectionId: string;
+          transactionId: string;
+          From: string;
+          To: string;
+          TimeStamp: string;
+        }
+      > = await this.fetchService.fetchWalletsLatestTxn(walletIds);
+      console.log('walletsLatestTxnData: ', walletsLatestTxnData);
+
       //update wallets with activity
+      await this.walletDbActions.updateWalletsFields(
+        walletIds,
+        walletsLatestTxnData,
+      );
     } catch (error) {
       this.logger.error(
         `Failed to fetch latest transactions: ${error.message}`,
@@ -42,7 +51,7 @@ export class CronService {
   }
 
   @Cron(CronExpression.EVERY_SECOND)
-  handleCron() {
-    this.logger.log('Called every second');
+  async handleCron() {
+    this.logger.log('CRON Alerts');
   }
 }

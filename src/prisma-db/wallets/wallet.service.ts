@@ -25,11 +25,16 @@ export class WalletDbService {
   }
 
   async getAllWallets(): Promise<Wallet[]> {
-    return this.prisma.wallet.findMany({
-      where: {
-        alertsEnabled: true,
-      },
-    });
+    try {
+      return this.prisma.wallet.findMany({
+        where: {
+          alertsEnabled: true,
+        },
+      });
+    } catch (error) {
+      console.error('An error occurred while fetching all wallets:', error);
+      throw error;
+    }
   }
 
   async getAlertsEnabled(walletId: string): Promise<boolean> {

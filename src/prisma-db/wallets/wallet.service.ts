@@ -12,22 +12,30 @@ export class WalletDbService {
     });
   }
 
-async addWallet(walletId: string, alertsEnabled: boolean): Promise<Wallet> {
+  async addWallet(walletId: string, alertsEnabled: boolean): Promise<Wallet> {
     return this.prisma.wallet.create({
-        data: {
-            wId: walletId,
-            alertsEnabled,
-            lastTrackedTransaction: '',
-            lastTrackedTimeStamp: '',
-            uId: '1',
-        },
+      data: {
+        wId: walletId,
+        alertsEnabled,
+        lastTrackedTransaction: '',
+        lastTrackedTimeStamp: '',
+        uId: '1',
+      },
     });
-}
+  }
 
-async getAlertsEnabled(walletId: string): Promise<boolean> {
+  async getAllWallets(): Promise<Wallet[]> {
+    return this.prisma.wallet.findMany({
+      where: {
+        alertsEnabled: true,
+      },
+    });
+  }
+
+  async getAlertsEnabled(walletId: string): Promise<boolean> {
     const wallet = await this.getWallet(walletId);
     return wallet?.alertsEnabled ?? false;
-}
+  }
 
   async getLastTrackedTracsaction(walletId: string): Promise<string> {
     const wallet = await this.getWallet(walletId);

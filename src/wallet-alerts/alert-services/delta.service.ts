@@ -33,6 +33,8 @@ export class DeltaService {
     return deltaWallets;
   }
 
+  //LOGIC for calcDelta:
+  //
   // 1. Initialize an empty object deltaTransactions.
   //
   // 2. For each wallet ID in deltaWallets:
@@ -41,7 +43,7 @@ export class DeltaService {
   //       2.2. Get the previous transaction ID and timestamp from the
   //                  wallet object.
   //       2.3. Get the latest transaction data from walletsLatestTxnData
-  //                  using the wallet ID.
+  //                  using the wallet ID - will be used later.
   //       2.4. Get the response data from walletActivity using the
   //                  wallet ID.
   //       2.5. Initialize an empty array walletDeltaTransactions.

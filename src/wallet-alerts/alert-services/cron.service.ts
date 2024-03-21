@@ -64,7 +64,7 @@ export class CronService {
     console.log('wallets in db: ', wallets);
 
     //extract wallet ids
-    const walletIds = wallets.map((wallet) => wallet.wId);
+    const walletIds = wallets.map((wallet: any) => wallet.wId);
 
     //fetch latest Transaction details for all wallets
     const result = await this.fetchService.fetchWalletsLatestTxn(walletIds);
@@ -95,5 +95,13 @@ export class CronService {
       walletsLatestTxnData,
       walletsResponses,
     );
+
+    //update wallets latest transaction in DB
+    await this.walletDbActions.updateWalletsFields(
+      deltaWallets,
+      walletsLatestTxnData,
+    );
+
+    //send alerts
   }
 }

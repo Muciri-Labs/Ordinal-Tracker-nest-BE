@@ -9,6 +9,7 @@ export class FetchService {
     };
 
     const walletsLatestTxnData = {};
+    const walletsResponses = {};
 
     for (const walletId of walletIds) {
       const url = `https://api.simplehash.com/api/v0/nfts/transfers/wallets?chains=bitcoin&wallet_addresses=${walletId}`;
@@ -21,6 +22,7 @@ export class FetchService {
           throw new Error(`Received status code ${response.status}`);
         }
 
+        walletsResponses[walletId] = response.data;
         const latestTransaction = response.data.transfers[0];
         walletsLatestTxnData[walletId] = {
           collectionId: latestTransaction.collection_id,
@@ -36,6 +38,6 @@ export class FetchService {
       }
     }
 
-    return walletsLatestTxnData;
+    return { walletsLatestTxnData, walletsResponses };
   }
 }

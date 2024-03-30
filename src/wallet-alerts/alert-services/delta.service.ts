@@ -30,6 +30,8 @@ export class DeltaService {
       }
     }
 
+    // console.log('deltaWallets: ', deltaWallets);
+
     return deltaWallets;
   }
 
@@ -65,8 +67,8 @@ export class DeltaService {
   // 3. Return deltaTransactions.
 
   async calcDelta(
-    wallets: Wallet[],
     deltaWallets: string[],
+    wallets: Wallet[],
     walletsLatestTxnData: Record<
       string,
       {
@@ -89,6 +91,14 @@ export class DeltaService {
       const responseData = walletActivity[walletId];
 
       const walletDeltaTransactions = [];
+
+      // console.log('walletId: ', walletId);
+      // console.log('wallet: ', wallet);
+      // console.log('previousTransactionId: ', previousTransactionId);
+      // console.log('previousTimeStamp: ', previousTimeStamp);
+      // console.log('latestTransactionData: ', latestTransactionData);
+      // console.log('responseData: ', responseData);
+
       for (const transaction of responseData.transfers) {
         if (transaction.transaction === previousTransactionId) {
           break;

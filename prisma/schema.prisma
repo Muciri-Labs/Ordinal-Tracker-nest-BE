@@ -17,14 +17,14 @@ model User {
   username         String            @unique
   email            String            @unique
   password         String
+  teleId           String?
   ownedCollections User_Collection[]
-  wallets          Wallet[]
-  floorAlerts      Floor_Alerts[]
+  userWallets      User_Wallet[]
+  floorAlerts      FloorAlerts[]
   userWatchlists   User_Watchlist[]
 }
 
 model User_Collection {
-  uCId         String     @id @default(cuid())
   uId          String
   user         User       @relation(fields: [uId], references: [uId])
   collectionId String
@@ -32,47 +32,58 @@ model User_Collection {
   walletId     String
   wallet       Wallet     @relation(fields: [walletId], references: [wId])
 
-  @@unique([uId, collectionId, walletId])
+  @@id([uId, collectionId, walletId])
 }
 
 model User_Watchlist {
-  uWid         String     @id @default(cuid())
   uId          String
   user         User       @relation(fields: [uId], references: [uId])
   collectionId String
   collection   Collection @relation(fields: [collectionId], references: [cId])
 
-  @@unique([uId, collectionId])
+  @@id([uId, collectionId])
 }
 
 model Collection {
   cId             String            @id
-  name            String
-  description     String
-  image           String
+  name            String?
+  description     String?
+  image           String?
+  owner_count     Int?
+  nft_count       Int?
+  quantity        Int?
   userCollections User_Collection[]
-  floorAlerts     Floor_Alerts[]
+  floorAlerts     FloorAlerts[]
   userWatchlists  User_Watchlist[]
 }
 
 model Wallet {
   wId                    String            @id
-  uId                    String
-  user                   User              @relation(fields: [uId], references: [uId])
-  alertsEnabled          Boolean
-  lastTrackedTransaction String
-  lastTrackedTimeStamp   String
+  lastTrackedTransaction String?
+  lastTrackedTimeStamp   String?
+  userWallets            User_Wallet[]
   userCollections        User_Collection[]
 }
 
-model Floor_Alerts {
+model FloorAlerts {
   aId          String     @id @default(cuid())
   uId          String
   user         User       @relation(fields: [uId], references: [uId])
   collectionId String
   collection   Collection @relation(fields: [collectionId], references: [cId])
-  trackType    TrackType
-  refPrice     Int
-  direction    Boolean
-  value        Int
+  trackType    TrackType?
+  refPrice     Int?
+  direction    Boolean?
+  value        Int?
+  latestFloor  Int?
+}
+
+model User_Wallet {
+  uId           String
+  wId           String
+  user          User     @relation(fields: [uId], references: [uId])
+  wallet        Wallet   @relation(fields: [wId], references: [wId])
+  alertsEnabled Boolean?
+
+  @@id([uId, wId])
 }

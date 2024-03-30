@@ -3,7 +3,7 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import { WalletDbService } from 'src/prisma-db/wallets/wallet.service';
 import { FetchService } from '../simple-hash-services/fetch.service';
 import { DeltaService } from './delta.service';
-import { Wallet } from '@prisma/client';
+import { User_Wallet } from '@prisma/client';
 
 @Injectable()
 export class CronService {
@@ -11,7 +11,7 @@ export class CronService {
     private readonly walletDbActions: WalletDbService,
     private readonly fetchService: FetchService,
     private readonly deltaService: DeltaService,
-  ) {}
+  ) { }
 
   private readonly logger = new Logger(CronService.name);
 
@@ -22,8 +22,8 @@ export class CronService {
   async populateInitialData() {
     this.logger.log('Populating initial data');
     //get all wallets that require initial seeding
-    const wallets = await this.walletDbActions.getAllWallets();
-    console.log('wallets in db: ', wallets);
+    const wallets = await this.walletDbActions.getAllAlertWallets();
+    // console.log('wallets in db: ', wallets);
     //extract wallet ids
     const walletIds = wallets.map((wallet) => wallet.wId);
     //call simple hash API to fetch wallet activity
@@ -56,12 +56,15 @@ export class CronService {
     }
   }
 
-  @Cron(CronExpression.EVERY_SECOND)
+  @Cron('*/2 * * * *')
   async handleCron() {
     this.logger.log('CRON Alerts');
+    //seed new wallets with initial data
+    this.populateInitialData();
+
     //get all wallets that require alerting
-    const wallets: Wallet[] | any = await this.walletDbActions.getAllWallets();
-    console.log('wallets in db: ', wallets);
+    const wallets: User_Wallet[] | any = await this.walletDbActions.getAllAlertWallets();
+    // console.log('wallets in db: ', wallets);
 
     //extract wallet ids
     const walletIds = wallets.map((wallet: any) => wallet.wId);
@@ -89,12 +92,25 @@ export class CronService {
     );
 
     //get delta transactions for wallets with new activity
+    if (deltaWallets.length === 0) {
+      console.log('No delta wallets or transactions found');
+      console.log('-------------------------------------------\n\n\n\n\n\n\n\n');
+      return;
+    }
+
+    console.log('deltaWallets: ', deltaWallets);
+    console.log('wallets', wallets);
+    console.log('walletsLatestTxnData: ', walletsLatestTxnData);
+    // console.log('walletsResponses: ', walletsResponses);
+
     const deltaTransactions = await this.deltaService.calcDelta(
       deltaWallets,
       wallets,
       walletsLatestTxnData,
       walletsResponses,
     );
+
+    //if delta transactions are empty, return
 
     //update wallets latest transaction in DB
     await this.walletDbActions.updateWalletsFields(
@@ -103,5 +119,7 @@ export class CronService {
     );
 
     //send alerts
+    console.log('deltaTransactions: ', deltaTransactions);
+    console.log('-------------------------------------------\n\n\n\n\n\n\n\n');
   }
 }

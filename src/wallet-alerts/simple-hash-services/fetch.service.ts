@@ -33,7 +33,7 @@ export class FetchService {
         };
       } catch (error) {
         throw new Error(
-          `Failed to fetch latest transaction for wallet ${walletId}`,
+          `Failed to fetch latest transaction for wallet ${walletId} because of error \n${error}`,
         );
       }
     }

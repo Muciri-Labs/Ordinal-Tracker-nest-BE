@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
-import { Wallet } from '@prisma/client';
+import { Wallet, User_Wallet } from '@prisma/client';
 
 @Injectable()
 export class WalletDbService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async getWallet(walletId: string): Promise<Wallet | null> {
     return this.prisma.wallet.findUnique({
@@ -12,37 +12,57 @@ export class WalletDbService {
     });
   }
 
-  async addWallet(walletId: string, alertsEnabled: boolean): Promise<Wallet> {
+  async getUserWallet(userId: string, walletId: string): Promise<User_Wallet | null> {
+    return this.prisma.user_Wallet.findUnique({
+      where: { uId_wId: { uId: userId, wId: walletId } },
+    });
+  }
+
+  async addWallet(walletId: string): Promise<Wallet> {
     return this.prisma.wallet.create({
       data: {
         wId: walletId,
-        alertsEnabled,
         lastTrackedTransaction: '',
         lastTrackedTimeStamp: '',
-        uId: '1',
       },
     });
   }
 
-  async getAllWallets(): Promise<Wallet[]> {
+  async addUserWallet(userId: string, walletId: string, alertsEnabled: boolean): Promise<User_Wallet> {
+    return this.prisma.user_Wallet.create({
+      data: {
+        uId: userId,
+        wId: walletId,
+        alertsEnabled,
+      },
+    });
+  }
+
+  async getAllAlertWallets(): Promise<Wallet[]> {
     try {
-      return this.prisma.wallet.findMany({
-        where: {
-          alertsEnabled: true,
-        },
+      const wallets = await this.prisma.user_Wallet.findMany({
+        where: { alertsEnabled: true },
       });
+      const walletDetails: Wallet[] = [];
+      for (const wallet of wallets) {
+        const walletDetail = await this.prisma.wallet.findUnique({
+          where: { wId: wallet.wId },
+        });
+        walletDetails.push(walletDetail);
+      }
+      return walletDetails;
     } catch (error) {
       console.error('An error occurred while fetching all wallets:', error);
       throw error;
     }
   }
 
-  async getAlertsEnabled(walletId: string): Promise<boolean> {
-    const wallet = await this.getWallet(walletId);
-    return wallet?.alertsEnabled ?? false;
+  async getAlertsEnabled(userId: string, walletId: string): Promise<boolean> {
+    const userWallet = await this.getUserWallet(userId, walletId);
+    return userWallet?.alertsEnabled ?? false;
   }
 
-  async getLastTrackedTracsaction(walletId: string): Promise<string> {
+  async getLastTrackedTransaction(walletId: string): Promise<string> {
     const wallet = await this.getWallet(walletId);
     return wallet?.lastTrackedTransaction ?? '';
   }

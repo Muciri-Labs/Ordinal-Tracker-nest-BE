@@ -1,17 +1,25 @@
-import { Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post } from '@nestjs/common';
 import { WalletDbService } from './prisma-db/wallets/wallet.service';
 
 @Controller()
 export class AppController {
-  constructor(private readonly walletService: WalletDbService) {}
+  constructor(private readonly walletService: WalletDbService) { }
 
   @Post('/wallet')
-  async addWallet() {
-    return this.walletService.addWallet('1', true);
+  async addWallet(@Body() body: any) {
+    const { walletId } = body;
+    return this.walletService.addWallet(walletId);
   }
 
   @Get('/wallet')
-  async getWallet() {
-    return this.walletService.getWallet('1');
+  async getWallet(@Body() body: any) {
+    const { walletId } = body;
+    return this.walletService.getWallet(walletId);
+  }
+
+  @Post('/user-wallet')
+  async addUserWallet(@Body() body: any) {
+    const { userId, walletId, alertsEnabled } = body;
+    return this.walletService.addUserWallet(userId, walletId, alertsEnabled);
   }
 }

@@ -18,7 +18,7 @@ export class FetchService {
         const response: AxiosResponse = await axios.get(url, { headers });
 
         if (response.status !== 200) {
-          console.log('response status: ', response);
+          // console.log('response status: ', response);
           throw new Error(`Received status code ${response.status}`);
         }
 

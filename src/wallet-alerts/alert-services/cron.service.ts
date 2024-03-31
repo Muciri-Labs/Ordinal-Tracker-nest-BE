@@ -60,7 +60,7 @@ export class CronService {
   async handleCron() {
     this.logger.log('CRON Alerts');
     //seed new wallets with initial data
-    this.populateInitialData();
+    // this.populateInitialData();
 
     //get all wallets that require alerting
     const wallets: User_Wallet[] | any = await this.walletDbActions.getAllAlertWallets();
@@ -99,8 +99,8 @@ export class CronService {
     }
 
     console.log('deltaWallets: ', deltaWallets);
-    console.log('wallets', wallets);
-    console.log('walletsLatestTxnData: ', walletsLatestTxnData);
+    // console.log('wallets', wallets);
+    // console.log('walletsLatestTxnData: ', walletsLatestTxnData);
     // console.log('walletsResponses: ', walletsResponses);
 
     const deltaTransactions = await this.deltaService.calcDelta(
@@ -118,7 +118,7 @@ export class CronService {
       walletsLatestTxnData,
     );
 
-    //send alerts
+    //get collection details -> send alerts to chatId
     console.log('deltaTransactions: ', deltaTransactions);
     console.log('-------------------------------------------\n\n\n\n\n\n\n\n');
   }

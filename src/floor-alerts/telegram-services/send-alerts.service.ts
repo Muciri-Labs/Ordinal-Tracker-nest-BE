@@ -15,7 +15,7 @@ export class TelegramService {
 
         //mocking user chat ids
         //for every unique user create a sample chat id string in userChatIds[]
-        const userChatIds = uniqueUsers.map(userId => `1785733002`);
+        const userChatIds = uniqueUsers.map(userId => `1416592158`); 
 
         const collections = await Promise.all(Object.keys(alertUsers).map(collectionId => this.floorDbService.getCollectionById(collectionId)));
 
@@ -31,11 +31,17 @@ export class TelegramService {
     }
 
     private async sendTelegramMessages(chatId: string, messages: string[]): Promise<void> {
-        const authToken = '6658629224:AAGWPEsdquKLfus0b-R0WZp-Q9ql4tM-mTM';
-        const url = `https://api.telegram.org/bot${authToken}/sendMessage`;
-        for (const message of messages) {
-            const payload = { chat_id: chatId, text: message, parse_mode: 'Markdown' };
-            await axios.post(url, payload);
+        try {
+            const authToken = '6658629224:AAGWPEsdquKLfus0b-R0WZp-Q9ql4tM-mTM';
+            const url = `https://api.telegram.org/bot${authToken}/sendMessage`;
+            for (const message of messages) {
+                const payload = { chat_id: chatId, text: message, parse_mode: 'Markdown' };
+                await axios.post(url, payload);
+            }
+        } catch (error) {
+            // Handle the error here
+            console.error('Error sending Telegram messages:', error);
+            throw error; // Rethrow the error to propagate it to the caller
         }
     }
 }

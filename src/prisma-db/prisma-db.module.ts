@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
 import { PrismaService } from './prisma.service';
 import { WalletDbService } from './wallets/wallet.service';
+import { FloorDbService } from './floors/floor.service';
 
 @Module({
-  providers: [PrismaService, WalletDbService],
-  exports: [WalletDbService],
+  providers: [PrismaService, WalletDbService, FloorDbService],
+  exports: [WalletDbService, FloorDbService],
 })
-export class PrismaDbModule {}
+export class PrismaDbModule { }

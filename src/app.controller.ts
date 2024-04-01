@@ -10,6 +10,10 @@ export class AppController {
     const { walletId } = body;
     return this.walletService.addWallet(walletId);
   }
+  @Get('/status')
+  async getStatus() {
+    return "Bot is active";
+  }
 
   @Get('/wallet')
   async getWallet(@Body() body: any) {

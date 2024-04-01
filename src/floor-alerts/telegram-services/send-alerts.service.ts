@@ -21,6 +21,11 @@ export class TelegramService {
 
         console.log('userChatIds:', userChatIds);
 
+        if (userChatIds.length === 0) {
+            console.log('No users to send alerts to.');
+            return;
+        }
+
         //mocking user chat ids
         //for every unique user create a sample chat id string in userChatIds[]
         // const userChatIds = uniqueUsers.map(userId => `1416592158`); 

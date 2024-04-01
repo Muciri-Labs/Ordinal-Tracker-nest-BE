@@ -37,21 +37,21 @@ export class CronService {
                 latestFloor: number;
             }[] = await this.floorDbActions.getAllFloorCollectionAlerts();
 
-            console.log('alertCollections: ', alertCollections, '\n\n');
+            // console.log('alertCollections: ', alertCollections, '\n\n');
 
             //extract collection ids
             const uniqueCollectionIds: string[] = Array.from(
                 new Set(alertCollections.map((collection) => collection.collectionId)),
             );
 
-            console.log('uniqueCollectionIds: ', uniqueCollectionIds, '\n\n');
+            // console.log('uniqueCollectionIds: ', uniqueCollectionIds, '\n\n');
 
             //call simple hash API to fetch latest collection floor details
             const latestFloorPrices: Record<string, number> = await this.fetchService.fetchCollectionsLatestFloorPrice(
                 uniqueCollectionIds,
             );
 
-            console.log('latestFloorPrices: ', latestFloorPrices, '\n\n');
+            // console.log('latestFloorPrices: ', latestFloorPrices, '\n\n');
 
             console.log('Intial seeding done!\n\n--------------------------------------------------------------------------------------------------------------------------------\n\n\n\n\n\n')
 
@@ -83,21 +83,21 @@ export class CronService {
             latestFloor: number;
         }[] = await this.floorDbActions.getAllFloorCollectionAlerts();
 
-        console.log('alertCollections: ', alertCollections, '\n\n');
+        // console.log('alertCollections: ', alertCollections, '\n\n');
 
         //extract collection ids
         const uniqueCollectionIds: string[] = Array.from(
             new Set(alertCollections.map((collection) => collection.collectionId)),
         );
 
-        console.log('uniqueCollectionIds: ', uniqueCollectionIds, '\n\n');
+        // console.log('uniqueCollectionIds: ', uniqueCollectionIds, '\n\n');
 
         //call simple hash API to fetch latest collection floor details
         const latestFloorPrices: Record<string, number> = await this.fetchService.fetchCollectionsLatestFloorPrice(
             uniqueCollectionIds,
         );
 
-        console.log('latestFloorPrices: ', latestFloorPrices, '\n\n');
+        // console.log('latestFloorPrices: ', latestFloorPrices, '\n\n');
 
         //get previous floor prices
         const previousFloorPrices: Record<string, number> = alertCollections.reduce(
@@ -108,7 +108,7 @@ export class CronService {
             {},
         );
 
-        console.log('previousFloorPrices: ', previousFloorPrices, '\n\n');
+        // console.log('previousFloorPrices: ', previousFloorPrices, '\n\n');
 
         //find collections with delta in floors
         const deltaCollections: DeltaCollection[] = await this.deltaService.calcDelta(

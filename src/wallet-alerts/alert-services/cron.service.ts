@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { WalletDbService } from 'src/prisma-db/wallets/wallet.service';
+import { TelegramService } from '../telegram-services/send-alerts.service';
 import { FetchService } from '../simple-hash-services/fetch.service';
 import { DeltaService } from './delta.service';
 import { User_Wallet } from '@prisma/client';
@@ -11,6 +12,7 @@ export class CronService {
     private readonly walletDbActions: WalletDbService,
     private readonly fetchService: FetchService,
     private readonly deltaService: DeltaService,
+    private readonly telegramService: TelegramService,
   ) { }
 
   private readonly logger = new Logger(CronService.name);
@@ -56,7 +58,7 @@ export class CronService {
     }
   }
 
-  @Cron('*/2 * * * *')
+  @Cron('*/1 * * * *')
   async handleCron() {
     this.logger.log('CRON Alerts');
     //seed new wallets with initial data
@@ -98,7 +100,7 @@ export class CronService {
       return;
     }
 
-    console.log('deltaWallets: ', deltaWallets);
+    // console.log('deltaWallets: ', deltaWallets);
     // console.log('wallets', wallets);
     // console.log('walletsLatestTxnData: ', walletsLatestTxnData);
     // console.log('walletsResponses: ', walletsResponses);
@@ -110,16 +112,44 @@ export class CronService {
       walletsResponses,
     );
 
-    //if delta transactions are empty, return
-
     //update wallets latest transaction in DB
     await this.walletDbActions.updateWalletsFields(
       deltaWallets,
       walletsLatestTxnData,
     );
 
-    //get collection details -> send alerts to chatId
     console.log('deltaTransactions: ', deltaTransactions);
+
+    const deltaWalletsList = Object.keys(deltaTransactions);
+    const owners = await this.walletDbActions.getAllWalletOwners(deltaWalletsList);
+
+    console.log('owners: ', owners);
+
+    const mergedData = this.mergeDeltaTransactionsAndOwners(deltaTransactions, owners);
+    console.log("mergedData", mergedData);
+
+    await this.telegramService.sendAlerts(mergedData);
+
     console.log('-------------------------------------------\n\n\n\n\n\n\n\n');
+  }
+
+  private mergeDeltaTransactionsAndOwners(deltaTransactions: Record<string, any[]>, owners: Record<string, any[]>) {
+    const merged = {};
+  
+    for (const walletId in deltaTransactions) {
+      const transactions = deltaTransactions[walletId];
+      const walletOwners = owners[walletId];
+  
+      const validOwners = walletOwners.filter((owner) => owner.teleId !== null);
+  
+      if (validOwners.length > 0) {
+        merged[walletId] = {
+          transactions,
+          owners: validOwners,
+        };
+      }
+    }
+  
+    return merged;
   }
 }

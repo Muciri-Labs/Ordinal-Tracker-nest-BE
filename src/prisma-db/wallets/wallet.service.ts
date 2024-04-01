@@ -104,4 +104,25 @@ export class WalletDbService {
       throw error;
     }
   }
+
+  async getAllWalletOwners(walletIds: string[]) {
+    const owners = {};
+
+    console.log('getting all owners of every delta wallet');
+
+    for (const walletId of walletIds) {
+      const userWallets = await this.prisma.user_Wallet.findMany({
+        where: {
+          wId: walletId,
+        },
+        include: {
+          user: true,
+        },
+      });
+
+      owners[walletId] = userWallets.map((userWallet) => userWallet.user);
+    }
+
+    return owners;
+  }
 }

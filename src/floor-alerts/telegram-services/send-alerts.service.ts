@@ -11,7 +11,15 @@ export class TelegramService {
         users: string[];
     }>): Promise<void> {
         const uniqueUsers = [...new Set(Object.values(alertUsers).flatMap(alert => alert.users))];
-        const userChatIds = await Promise.all(uniqueUsers.map(userId => this.floorDbService.getUserByUserId(userId).then(user => user.teleId)));
+        console.log('uniqueUsers:', uniqueUsers);
+
+        const userChatIds = (await Promise.all(
+            uniqueUsers.map(userId =>
+                this.floorDbService.getUserByUserId(userId)
+            )
+        )).filter(user => user.teleId !== null).map(user => user.teleId);
+
+        console.log('userChatIds:', userChatIds);
 
         //mocking user chat ids
         //for every unique user create a sample chat id string in userChatIds[]

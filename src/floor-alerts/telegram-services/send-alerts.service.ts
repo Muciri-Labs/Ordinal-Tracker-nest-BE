@@ -13,33 +13,29 @@ export class TelegramService {
         const uniqueUsers = [...new Set(Object.values(alertUsers).flatMap(alert => alert.users))];
         console.log('uniqueUsers:', uniqueUsers);
 
-        const userChatIds = (await Promise.all(
+        const userChatIdPairs = (await Promise.all(
             uniqueUsers.map(userId =>
                 this.floorDbService.getUserByUserId(userId)
             )
-        )).filter(user => user.teleId !== null).map(user => user.teleId);
+        )).filter(user => user.teleId !== null).map(user => ({ userId: user.uId, chatId: user.teleId }));
 
-        console.log('userChatIds:', userChatIds);
+        console.log('userChatIdPairs:', userChatIdPairs);
 
-        if (userChatIds.length === 0) {
+        if (userChatIdPairs.length === 0) {
             console.log('No users to send alerts to.');
             return;
         }
 
-        //mocking user chat ids
-        //for every unique user create a sample chat id string in userChatIds[]
-        // const userChatIds = uniqueUsers.map(userId => `1416592158`); 
-
         const collections = await Promise.all(Object.keys(alertUsers).map(collectionId => this.floorDbService.getCollectionById(collectionId)));
 
-        for (const [index, userId] of uniqueUsers.entries()) {
+        for (const { userId, chatId } of userChatIdPairs) {
             const userAlerts = Object.entries(alertUsers).filter(([_, alert]) => alert.users.includes(userId));
             const messages = userAlerts.map(([collectionId, alert]) => {
                 const collection = collections.find(collection => collection.cId === collectionId);
                 const direction = alert.deltaValue > 0 ? 'increased' : 'decreased';
                 return `The value of ${collection.name} has ${direction} by ${Math.abs(alert.deltaValue)}%. [Collection Image](${collection.image})`;
             });
-            await this.sendTelegramMessages(userChatIds[index], messages);
+            await this.sendTelegramMessages(chatId, messages);
         }
     }
 

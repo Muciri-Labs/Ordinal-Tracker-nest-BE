@@ -73,7 +73,7 @@ export class CronService {
 
     @Cron('*/2 * * * *')
     async handleCron() {
-        this.logger.log('------------------------------------------------------------------------------------------------------------------------------------\n\n\nCRON Alerts');
+        this.logger.log('------------------------------------------------------------------------------------------------------------------------------------\n\n\nCRON Alerts for floor');
 
         //get all the user - collection entries that require alerting
         const alertCollections: {
@@ -97,7 +97,7 @@ export class CronService {
             uniqueCollectionIds,
         );
 
-        // console.log('latestFloorPrices: ', latestFloorPrices, '\n\n');
+        console.log('latestFloorPrices: ', latestFloorPrices, '\n\n');
 
         //get previous floor prices
         const previousFloorPrices: Record<string, number> = alertCollections.reduce(
@@ -108,7 +108,7 @@ export class CronService {
             {},
         );
 
-        // console.log('previousFloorPrices: ', previousFloorPrices, '\n\n');
+        console.log('previousFloorPrices: ', previousFloorPrices, '\n\n');
 
         //find collections with delta in floors
         const deltaCollections: DeltaCollection[] = await this.deltaService.calcDelta(
@@ -117,7 +117,7 @@ export class CronService {
             latestFloorPrices,
         );
 
-        console.log('deltaCollections: ', deltaCollections, '\n\n');
+        // console.log('deltaCollections: ', deltaCollections, '\n\n');
 
         //find users who need to be alerted
         const usersToAlert = deltaCollections.reduce((acc, deltaCollection) => {
@@ -134,14 +134,16 @@ export class CronService {
             };
         }, {});
 
-        //alert users
-        // for (const [collectionId, { deltaValue, users }] of Object.entries<{ deltaValue: number, users: string[] }>(usersToAlert)) {
-        //     console.log(`Alerting users for collection ${collectionId} with delta ${deltaValue}%`);
-        //     console.log(`Users to alert: ${users.join(', ')}`);
-        // }
-        console.log('usersToAlert: ', usersToAlert, '------------------------------------------------------------------------------------------------------------------------------------------------\n\n');
+        //update the latest floors in db
+        await this.floorDbActions.updateLatestFloors(
+            alertCollections,
+            latestFloorPrices,
+        );
 
         //send alerts on telgram
         await this.telegramService.sendAlerts(usersToAlert);
+
+
+        console.log('usersToAlert: ', usersToAlert, '------------------------------------------------------------------------------------------------------------------------------------------------\n\n');
     }
 }

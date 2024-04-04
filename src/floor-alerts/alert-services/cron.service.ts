@@ -21,56 +21,6 @@ export class CronService {
 
     private readonly logger = new Logger(CronService.name);
 
-    async onModuleInit() {
-        await this.populateInitialData();
-    }
-
-    async populateInitialData() {
-        this.logger.log('--------------------------------------------------------------------------------------------------------------\n\n\nPopulating initial data');
-
-        //get all the user - collection entries that require alerting
-        try {
-            const alertCollections: {
-                aId: string;
-                userId: string;
-                collectionId: string;
-                latestFloor: number;
-            }[] = await this.floorDbActions.getAllFloorCollectionAlerts();
-
-            // console.log('alertCollections: ', alertCollections, '\n\n');
-
-            //extract collection ids
-            const uniqueCollectionIds: string[] = Array.from(
-                new Set(alertCollections.map((collection) => collection.collectionId)),
-            );
-
-            // console.log('uniqueCollectionIds: ', uniqueCollectionIds, '\n\n');
-
-            //call simple hash API to fetch latest collection floor details
-            const latestFloorPrices: Record<string, number> = await this.fetchService.fetchCollectionsLatestFloorPrice(
-                uniqueCollectionIds,
-            );
-
-            // console.log('latestFloorPrices: ', latestFloorPrices, '\n\n');
-
-            console.log('Intial seeding done!\n\n--------------------------------------------------------------------------------------------------------------------------------\n\n\n\n\n\n')
-
-            //update latest floors for every user alert entry
-            await this.floorDbActions.updateLatestFloors(
-                alertCollections,
-                latestFloorPrices,
-            );
-
-
-
-        } catch (error) {
-            this.logger.error(
-                `Failed to fetch latest transactions: ${error.message}`,
-            );
-            throw error;
-        }
-    }
-
     @Cron('*/2 * * * *')
     async handleCron() {
         this.logger.log('------------------------------------------------------------------------------------------------------------------------------------\n\n\nCRON Alerts for floor');
@@ -81,6 +31,7 @@ export class CronService {
             userId: string;
             collectionId: string;
             latestFloor: number;
+            timeStamp: string;
         }[] = await this.floorDbActions.getAllFloorCollectionAlerts();
 
         // console.log('alertCollections: ', alertCollections, '\n\n');
@@ -121,28 +72,33 @@ export class CronService {
 
         //find users who need to be alerted
         const usersToAlert = deltaCollections.reduce((acc, deltaCollection) => {
-            const users = alertCollections
-                .filter(alert => alert.collectionId === deltaCollection.collectionId)
-                .map(alert => alert.userId);
+            const userAlerts = alertCollections
+                .filter(alert => alert.collectionId === deltaCollection.collectionId);
+
+            const usersAndTimestamps = userAlerts.map(alert => ({
+                userId: alert.userId,
+                timeStamp: alert.timeStamp
+            }));
 
             return {
                 ...acc,
                 [deltaCollection.collectionId]: {
                     deltaValue: deltaCollection.delta,
-                    users,
+                    users: usersAndTimestamps,
                 },
             };
         }, {});
+
+
+        //send alerts on telgram
+        await this.telegramService.sendAlerts(usersToAlert, latestFloorPrices);
 
         //update the latest floors in db
         await this.floorDbActions.updateLatestFloors(
             alertCollections,
             latestFloorPrices,
+            deltaCollections,
         );
-
-        //send alerts on telgram
-        await this.telegramService.sendAlerts(usersToAlert);
-
 
         console.log('usersToAlert: ', usersToAlert, '------------------------------------------------------------------------------------------------------------------------------------------------\n\n');
     }

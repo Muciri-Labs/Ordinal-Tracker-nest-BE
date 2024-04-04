@@ -76,6 +76,7 @@ model FloorAlerts {
   direction    Boolean?
   value        Int?
   latestFloor  Int?
+  timeStamp    String?
 }
 
 model User_Wallet {

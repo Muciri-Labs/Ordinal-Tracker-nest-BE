@@ -7,7 +7,7 @@ export class DeltaService {
         uniqueCollectionIds: string[],
         previousFloorPrices: Record<string, number>,
         latestFloorPrices: Record<string, number>,
-    ) { 
+    ) {
         // Define a type for deltaCollections
         type DeltaCollection = {
             collectionId: string;
@@ -20,12 +20,12 @@ export class DeltaService {
             const latestFloor = latestFloorPrices[collectionId];
             //delta will be a percentage increase or decrease with negative sign for decrease
             const delta = ((latestFloor - previousFloor) / previousFloor) * 100;
-            if(delta !== 0) {
+            if (delta !== 0 && delta !== Infinity && delta !== -Infinity && !isNaN(delta) && (delta >= 10 || delta <= -10)) {
                 return {
                     collectionId,
                     delta
                 }
-            }else {
+            } else {
                 return null;
             }
         });

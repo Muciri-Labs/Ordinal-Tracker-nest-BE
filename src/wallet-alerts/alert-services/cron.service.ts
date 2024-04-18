@@ -13,7 +13,7 @@ export class CronService {
     private readonly fetchService: FetchService,
     private readonly deltaService: DeltaService,
     private readonly telegramService: TelegramService,
-  ) { }
+  ) {}
 
   private readonly logger = new Logger(CronService.name);
 
@@ -65,11 +65,12 @@ export class CronService {
     // this.populateInitialData();
 
     //get all wallets that require alerting
-    const wallets: User_Wallet[] | any = await this.walletDbActions.getAllAlertWallets();
-    // console.log('wallets in db: ', wallets);
+    const wallets: User_Wallet[] | any =
+      await this.walletDbActions.getAllAlertWallets();
 
     //extract wallet ids
     const walletIds = wallets.map((wallet: any) => wallet.wId);
+    console.log('wallets in db: \n', walletIds);
 
     //fetch latest Transaction details for all wallets
     const result = await this.fetchService.fetchWalletsLatestTxn(walletIds);
@@ -85,18 +86,25 @@ export class CronService {
       }
     > = result.walletsLatestTxnData;
 
+    console.log('wallets Latest Txn Data: \n', walletsLatestTxnData);
+
     const walletsResponses: Record<string, any> = result.walletsResponses;
 
     //get list of wallets that have new activity
-    const deltaWallets: string[] | any = await this.deltaService.getDeltaWalletsList(
-      wallets,
-      walletsLatestTxnData,
-    );
+    const deltaWallets: string[] | any =
+      await this.deltaService.getDeltaWalletsList(
+        wallets,
+        walletsLatestTxnData,
+      );
+
+    console.log('wallets with delta: \n', deltaWallets);
 
     //get delta transactions for wallets with new activity
     if (deltaWallets.length === 0) {
-      console.log('No delta wallets or transactions found');
-      console.log('-------------------------------------------\n\n\n\n\n\n\n\n');
+      console.log('\nNo delta wallets or transactions found');
+      console.log(
+        '-------------------------------------------\n\n\n\n\n\n\n\n',
+      );
       return;
     }
 
@@ -121,27 +129,34 @@ export class CronService {
     console.log('deltaTransactions: ', deltaTransactions);
 
     const deltaWalletsList = Object.keys(deltaTransactions);
-    const owners = await this.walletDbActions.getAllWalletOwners(deltaWalletsList);
+    const owners =
+      await this.walletDbActions.getAllWalletOwners(deltaWalletsList);
 
-    console.log('owners: ', owners);
+    console.log('owners of every wallet: ', owners);
 
-    const mergedData = this.mergeDeltaTransactionsAndOwners(deltaTransactions, owners);
-    console.log("mergedData", mergedData);
+    const mergedData = this.mergeDeltaTransactionsAndOwners(
+      deltaTransactions,
+      owners,
+    );
+    // console.log("mergedData", mergedData);
 
     await this.telegramService.sendAlerts(mergedData);
 
     console.log('-------------------------------------------\n\n\n\n\n\n\n\n');
   }
 
-  private mergeDeltaTransactionsAndOwners(deltaTransactions: Record<string, any[]>, owners: Record<string, any[]>) {
+  private mergeDeltaTransactionsAndOwners(
+    deltaTransactions: Record<string, any[]>,
+    owners: Record<string, any[]>,
+  ) {
     const merged = {};
-  
+
     for (const walletId in deltaTransactions) {
       const transactions = deltaTransactions[walletId];
       const walletOwners = owners[walletId];
-  
+
       const validOwners = walletOwners.filter((owner) => owner.teleId !== null);
-  
+
       if (validOwners.length > 0) {
         merged[walletId] = {
           transactions,
@@ -149,7 +164,7 @@ export class CronService {
         };
       }
     }
-  
+
     return merged;
   }
 }

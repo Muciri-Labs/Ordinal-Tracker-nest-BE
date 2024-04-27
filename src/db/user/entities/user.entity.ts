@@ -3,7 +3,7 @@ import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 @Entity()
 export class User {
     @PrimaryGeneratedColumn()
-    id: number;
+    id?: number;
 
     @Column({ nullable: true })
     email: string;
@@ -12,8 +12,8 @@ export class User {
     password: string;
 
     @Column({ nullable: true })
-    telegramId: string;
+    telegramId?: string;
 
     @Column({ nullable: true })
-    isOAuth: boolean;
+    isOAuth?: boolean;
 }

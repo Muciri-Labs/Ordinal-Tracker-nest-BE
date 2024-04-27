@@ -1,9 +1,9 @@
-import { Body, Controller, Post, UseGuards, Req } from '@nestjs/common';
+import { Body, Controller, Post, UseGuards, Req, Res } from '@nestjs/common';
 import { UserService } from 'src/db/user/user.service';
-import { DtoSignup, DtoSignin } from './auth.types';
+import { DtoSignup } from './auth.types';
 import { User } from 'src/db/user/entities/user.entity';
 import { LocalGuard } from './guards/local.guard';
-import { Request } from 'express';
+import { Request, Response } from 'express';
 
 @Controller('auth')
 export class AuthController {
@@ -23,9 +23,13 @@ export class AuthController {
 
     @UseGuards(LocalGuard)
     @Post('signin')
-    async signin(@Req() req: Request & { user: any }) {
+    async signin(@Req() req: Request & { user: any }, @Res() res: Response) {
         console.log('req.user', req.user);
-        const jwt = req.user;
-        return jwt;
+
+        const jwt = req.user.jwt_token;
+
+        res.cookie('jwt-token', jwt, { httpOnly: true, secure: true });
+
+        return res.sendStatus(200);
     }
 }

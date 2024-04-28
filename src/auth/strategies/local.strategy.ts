@@ -8,7 +8,7 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
     constructor(
         private readonly authService: AuthService
     ) {
-        console.log('LocalStrategy');
+        console.log('LocalStrategy init');
         super({
             usernameField: 'email',
             passwordField: 'password'
@@ -16,11 +16,12 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
     }
 
     async validate(email: string, password: string): Promise<any> {
-        console.log('validate', email, password);
+        // console.log('validate', email, password);
         const jwt = await this.authService.validateUser(email, password);
         if (!jwt) {
             return null;
         }
+
         return jwt;
     }
 }

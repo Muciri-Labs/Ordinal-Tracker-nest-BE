@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { Repository } from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";
 import { User } from "./entities/user.entity";
+import { TGoogleUser } from "./user.types";
 
 @Injectable()
 export class UserService {
@@ -14,6 +15,10 @@ export class UserService {
         return await this.userRepository.save(user);
     }
 
+    async googleCreate(user: TGoogleUser): Promise<User> {
+        return await this.userRepository.save(user);
+    }
+
     async findOneById(id: number): Promise<User> {
         return await this.userRepository.findOne({
             where: { id },
@@ -21,9 +26,14 @@ export class UserService {
     }
 
     async findOneByEmail(email: string): Promise<User> {
-        return await this.userRepository.findOne({
+        // console.log('findOneByEmail', email);
+        const user = await this.userRepository.findOne({
             where: { email },
         });
+
+        // console.log('user from db', user);
+
+        return user;
     }
 
     async findOneByTelegramId(telegramId: string): Promise<User> {

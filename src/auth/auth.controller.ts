@@ -11,15 +11,20 @@ export class AuthController {
     constructor(private readonly userService: UserService) { }
 
     @Post('signup')
-    async signup(@Body() body: DtoSignup) {
-        const user: User = {
+    async signup(@Body() body: DtoSignup, @Res() res: Response) {
+        let user: User = {
             email: body.email,
             password: body.password,
         };
 
+        // console.log('user to add in db: ', user);
+        const hashedPassword = await this.userService.hashPassword(user.password);
+        // console.log('hashedPassword', hashedPassword);
+        user.password = hashedPassword;
+
         await this.userService.create(user);
 
-        return 'signup';
+        return res.sendStatus(200);
     }
 
     @UseGuards(LocalGuard)
@@ -37,7 +42,7 @@ export class AuthController {
     @Get('google-signin')
     @UseGuards(GoogleAuthGuard)
     async googleSignin() {
-        // console.log('google-signin');
+        console.log('google-signin');
         return 'google-signin';
     }
 
@@ -46,10 +51,8 @@ export class AuthController {
     async googleRedirect(@Req() req: Request & { user: any }, @Res() res: Response) {
         const jwt = req.user.jwt_token;
 
-        // console.log('jwt in redirect', jwt);
-
         res.cookie('jwt-token', jwt, { httpOnly: true, secure: true });
 
-        return res.sendStatus(200);
+        return res.status(200).json({ jwt });
     }
 }

@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { UserService } from 'src/db/user/user.service';
 import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
@@ -20,7 +21,9 @@ export class AuthService {
             return null;
         }
 
-        if (user.password !== password) {
+        const isPasswordMatching = await bcrypt.compare(password, user.password);
+
+        if (isPasswordMatching) {
             return null;
         }
 

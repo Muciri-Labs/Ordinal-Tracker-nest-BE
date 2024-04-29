@@ -3,6 +3,7 @@ import { Repository } from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";
 import { User } from "./entities/user.entity";
 import { TGoogleUser } from "./user.types";
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UserService {
@@ -12,7 +13,9 @@ export class UserService {
     ) { }
 
     async create(user: User): Promise<User> {
-        return await this.userRepository.save(user);
+        const result = await this.userRepository.save(user);
+        console.log('user created');
+        return result;
     }
 
     async googleCreate(user: TGoogleUser): Promise<User> {
@@ -48,5 +51,14 @@ export class UserService {
 
     async delete(id: number): Promise<void> {
         await this.userRepository.delete(id);
+    }
+
+    async hashPassword(password: string): Promise<string> {
+        const salt = await bcrypt.genSalt(10);
+        // console.log(salt);
+
+        const hashedPassword = await bcrypt.hash(password, salt);
+
+        return hashedPassword;
     }
 }

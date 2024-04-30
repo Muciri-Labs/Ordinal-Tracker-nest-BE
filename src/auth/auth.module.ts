@@ -5,6 +5,7 @@ import { AuthService } from './auth.service';
 import { LocalStrategy } from './strategies/local.strategy';
 import { JwtModule } from '@nestjs/jwt';
 import { GoogleStrategy } from './strategies/google.strategy';
+import { JwtStrategy } from './strategies/jwt.strategy';
 
 const GoogleStrategyProvider: Provider = {
     provide: 'PassportStrategy',
@@ -20,6 +21,6 @@ const GoogleStrategyProvider: Provider = {
         })
     ],
     controllers: [AuthController],
-    providers: [AuthService, LocalStrategy, GoogleStrategyProvider]
+    providers: [AuthService, LocalStrategy, GoogleStrategyProvider, JwtStrategy]
 })
 export class AuthModule { }

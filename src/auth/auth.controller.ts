@@ -1,7 +1,7 @@
 import { Body, Controller, Post, Get, UseGuards, Req, Res } from '@nestjs/common';
-import { UserService } from 'src/db/user/user.service';
+import { UserService } from 'src/user/user.service';
 import { DtoSignup } from './auth.types';
-import { User } from 'src/db/user/entities/user.entity';
+import { User } from 'src/user/entities/user.entity';
 import { LocalGuard } from './guards/local.guard';
 import { Request, Response } from 'express';
 import { GoogleAuthGuard } from './guards/google.guard';

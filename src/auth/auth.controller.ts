@@ -30,11 +30,13 @@ export class AuthController {
     @UseGuards(LocalGuard)
     @Post('signin')
     async signin(@Req() req: Request & { user: any }, @Res() res: Response) {
-        // console.log('req.user', req.user);
+        console.log('req.user', req.user);
 
         const jwt = req.user.jwt_token;
 
-        res.cookie('jwt-token', jwt, { httpOnly: true, secure: true });
+        console.log("attaching jwt token: ", jwt);
+
+        res.json({ jwt });
 
         return res.sendStatus(200);
     }

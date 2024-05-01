@@ -14,20 +14,25 @@ export class AuthService {
         // console.log('validateUser', email, password);
 
         const user = await this.userService.findOneByEmail(email);
-
         // console.log('user', user);
 
+
         if (!user) {
+            console.log('no user');
             return null;
         }
 
+        // console.log('password', password);
+        // console.log('user.password', user.password);
         const isPasswordMatching = await bcrypt.compare(password, user.password);
 
-        if (isPasswordMatching) {
+        if (!isPasswordMatching) {
+            // console.log('password not matching');
             return null;
         }
 
         const payload = { email };
+        // console.log('payload', payload);
 
         return {
             jwt_token: this.jwtService.sign(payload),

@@ -51,11 +51,15 @@ export class AuthController {
     @Get('google-redirect')
     @UseGuards(GoogleAuthGuard)
     async googleRedirect(@Req() req: Request & { user: any }, @Res() res: Response) {
+        console.log('google-redirect');
+
         const jwt = req.user.jwt_token;
 
         const value = res.cookie('jwt-token', jwt, {
             sameSite: 'none',
-            secure: true
+            secure: true,
+            httpOnly: true,
+            path: '/'
         });
 
         console.log('cookie', value);

@@ -14,7 +14,7 @@ export class AuthService {
         // console.log('validateUser', email, password);
 
         const user = await this.userService.findOneByEmail(email);
-        // console.log('user', user);
+        console.log('user', user);
 
         if (!user) {
             console.log('no user');
@@ -39,7 +39,7 @@ export class AuthService {
     }
 
     async validateGoogleUser(email: string): Promise<any> {
-        // console.log('validateGoogleUser', email);
+        console.log('validateGoogleUser', email);
 
         const user = await this.userService.findOneByEmail(email);
 
@@ -49,7 +49,7 @@ export class AuthService {
 
         const payload = { email };
 
-        // console.log('payload', payload);
+        console.log('payload', payload);
         this.userService.googleCreate(payload);
 
         return {

@@ -57,6 +57,8 @@ export class AuthController {
 
         const url = process.env.FRONTEND_URL;
 
+        console.log('redirecting to: ', url);
+
         return res.redirect(url);
     }
 }

@@ -22,7 +22,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy) {
 
         if (profile.emails[0].verified) {
             email = profile.emails[0].value;
-            // console.log('email', email);
+            console.log('email', email);
 
             const jwt = await this.authService.validateGoogleUser(email);
 
@@ -30,7 +30,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy) {
                 return null;
             }
 
-            // console.log('jwt', jwt);
+            console.log('jwt', jwt);
 
             return jwt;
         }

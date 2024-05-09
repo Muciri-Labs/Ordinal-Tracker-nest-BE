@@ -55,20 +55,9 @@ export class AuthController {
 
         const jwt = req.user.jwt_token;
 
-        // const value = res.cookie('jwt-token', jwt, {
-        //     sameSite: 'none',
-        //     domain: 'ordinal-tracker.onrender.com',
-        //     secure: true,
-        //     httpOnly: true,
-        //     path: '/'
-        // });
-
         const value = res.cookie('jwt-token', jwt);
-        // res.json({ jwt });
-
-        // console.log('cookie', value);
-
-        const url = process.env.FRONTEND_URL;
+        // Send the jwt token as part of the redirect response
+        const url = process.env.FRONTEND_URL + '?jwt=' + jwt;
 
         console.log('redirecting to: ', url);
 

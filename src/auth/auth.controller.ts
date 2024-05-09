@@ -53,7 +53,10 @@ export class AuthController {
     async googleRedirect(@Req() req: Request & { user: any }, @Res() res: Response) {
         const jwt = req.user.jwt_token;
 
-        const value = res.cookie('jwt-token', jwt);
+        const value = res.cookie('jwt-token', jwt, {
+            sameSite: 'none',
+            secure: true
+        });
 
         console.log('cookie', value);
 

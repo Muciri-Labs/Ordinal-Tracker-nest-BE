@@ -16,7 +16,6 @@ export class AuthService {
         const user = await this.userService.findOneByEmail(email);
         // console.log('user', user);
 
-
         if (!user) {
             console.log('no user');
             return null;
@@ -51,6 +50,7 @@ export class AuthService {
         const payload = { email };
 
         // console.log('payload', payload);
+        this.userService.googleCreate(payload);
 
         return {
             jwt_token: this.jwtService.sign(payload),

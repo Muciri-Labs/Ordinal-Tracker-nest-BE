@@ -55,6 +55,8 @@ export class AuthController {
 
         res.cookie('jwt-token', jwt, { httpOnly: true, secure: true });
 
-        return res.status(200).json({ jwt });
+        const url = process.env.FRONTEND_URL;
+
+        return res.redirect(url);
     }
 }

@@ -6,11 +6,12 @@ export class GoogleStrategy extends PassportStrategy(Strategy) {
     constructor(
         private readonly authService: AuthService
     ) {
+        const url = process.env.BACKEND_URL;
         console.log('GoogleStrategy init');
         super({
             clientID: process.env.GOOGLE_CLIENT_ID,
             clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-            callbackURL: 'http://192.168.0.121:3000/auth/google-signin',
+            callbackURL: url,
             scope: ['email', 'profile'],
             session: false,
         });

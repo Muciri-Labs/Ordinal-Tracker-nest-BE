@@ -55,14 +55,18 @@ export class AuthController {
 
         const jwt = req.user.jwt_token;
 
-        const value = res.cookie('jwt-token', jwt, {
-            sameSite: 'none',
-            secure: true,
-            httpOnly: true,
-            path: '/'
-        });
+        // const value = res.cookie('jwt-token', jwt, {
+        //     sameSite: 'none',
+        //     domain: 'ordinal-tracker.onrender.com',
+        //     secure: true,
+        //     httpOnly: true,
+        //     path: '/'
+        // });
 
-        console.log('cookie', value);
+        const value = res.cookie('jwt-token', jwt);
+        // res.json({ jwt });
+
+        // console.log('cookie', value);
 
         const url = process.env.FRONTEND_URL;
 

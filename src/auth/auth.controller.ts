@@ -53,7 +53,9 @@ export class AuthController {
     async googleRedirect(@Req() req: Request & { user: any }, @Res() res: Response) {
         const jwt = req.user.jwt_token;
 
-        res.cookie('jwt-token', jwt);
+        const value = res.cookie('jwt-token', jwt);
+
+        console.log('cookie', value);
 
         const url = process.env.FRONTEND_URL;
 

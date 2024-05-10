@@ -8,19 +8,20 @@ import { GoogleStrategy } from './strategies/google.strategy';
 import { JwtStrategy } from './strategies/jwt.strategy';
 
 const GoogleStrategyProvider: Provider = {
-    provide: 'PassportStrategy',
-    useFactory: (authService: AuthService) => new GoogleStrategy(authService),
-    inject: [AuthService],
+  provide: 'PassportStrategy',
+  useFactory: (authService: AuthService) => new GoogleStrategy(authService),
+  inject: [AuthService],
 };
 
 @Module({
-    imports: [UserModule,
-        JwtModule.register({
-            secret: process.env.JWT_SECRET,
-            signOptions: { expiresIn: '30d' },
-        })
-    ],
-    controllers: [AuthController],
-    providers: [AuthService, LocalStrategy, GoogleStrategyProvider, JwtStrategy]
+  imports: [
+    UserModule,
+    JwtModule.register({
+      secret: process.env.JWT_SECRET,
+      signOptions: { expiresIn: '30d' },
+    }),
+  ],
+  controllers: [AuthController],
+  providers: [AuthService, LocalStrategy, GoogleStrategyProvider, JwtStrategy],
 })
-export class AuthModule { }
+export class AuthModule {}

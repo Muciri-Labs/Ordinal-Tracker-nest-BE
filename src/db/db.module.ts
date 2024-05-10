@@ -5,15 +5,14 @@ import { UserModule } from '../user/user.module';
 console.log(process.env.DB_URL);
 
 @Module({
-    imports: [
-        TypeOrmModule.forRoot({
-            type: "postgres",
-            url: process.env.DB_URL,
-            entities: [__dirname + '/../**/*.entity{.ts,.js}'],
-            synchronize: true
-        }
-        ),
-        UserModule,
-    ],
+  imports: [
+    TypeOrmModule.forRoot({
+      type: 'postgres',
+      url: process.env.DB_URL,
+      entities: [__dirname + '/../**/*.entity{.ts,.js}'],
+      synchronize: true,
+    }),
+    UserModule,
+  ],
 })
-export class DbModule { }
+export class DbModule {}

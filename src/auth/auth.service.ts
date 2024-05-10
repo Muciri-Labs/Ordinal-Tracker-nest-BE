@@ -26,12 +26,12 @@ export class AuthService {
     const isPasswordMatching = await bcrypt.compare(password, user.password);
 
     if (!isPasswordMatching) {
-      // console.log('password not matching');
+      console.log('password not matching');
       return null;
     }
 
     const payload = { email };
-    // console.log('payload', payload);
+    console.log('payload', payload);
 
     return {
       jwt_token: this.jwtService.sign(payload),
@@ -42,15 +42,17 @@ export class AuthService {
     console.log('validateGoogleUser', email);
 
     const user = await this.userService.findOneByEmail(email);
+    const payload = { email };
 
-    if (user) {
+    if (user && user.password !== null) {
       return null;
     }
 
-    const payload = { email };
+    if (!user) {
+      this.userService.googleCreate(payload);
+    }
 
     console.log('payload', payload);
-    this.userService.googleCreate(payload);
 
     return {
       jwt_token: this.jwtService.sign(payload),

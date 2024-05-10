@@ -31,6 +31,13 @@ export class AuthController {
     // console.log('hashedPassword', hashedPassword);
     user.password = hashedPassword;
 
+    //check if user already exists
+    const userExists = await this.userService.findOneByEmail(user.email);
+
+    if (userExists) {
+      return res.sendStatus(401);
+    }
+
     await this.userService.create(user);
 
     return res.sendStatus(200);
@@ -39,15 +46,19 @@ export class AuthController {
   @UseGuards(LocalGuard)
   @Post('signin')
   async signin(@Req() req: Request & { user: any }, @Res() res: Response) {
-    console.log('req.user', req.user);
+    const obj = req.user;
+    let url: string;
+    // console.log('redirecting to: ', url);
 
-    const jwt = req.user.jwt_token;
+    if (obj.error) {
+      console.log('error in auth: ', obj.error);
+      return res.status(401).json({ error: obj.error });
+    } else {
+      const jwt = obj.jwt_token;
+      res.json({ jwt });
 
-    console.log('attaching jwt token: ', jwt);
-
-    res.json({ jwt });
-
-    return res.sendStatus(200);
+      return res.sendStatus(200);
+    }
   }
 
   @Get('google-signin')
@@ -63,15 +74,23 @@ export class AuthController {
     @Req() req: Request & { user: any },
     @Res() res: Response,
   ) {
-    console.log('google-redirect');
+    const obj = req.user;
+    let url: string;
+    // console.log('redirecting to: ', url);
 
-    const jwt = req.user.jwt_token;
+    if (obj.error) {
+      // console.log('error in auth: ', obj.error);
+      res.cookie('jwt-token', 'error');
 
+      url =
+        process.env.FRONTEND_BASE_URL + '/auth/api?jwt=' + 'error-' + obj.error;
+
+      return res.redirect(url);
+    }
+
+    const jwt = obj.jwt_token;
+    url = process.env.FRONTEND_BASE_URL + '/auth/api?jwt=' + jwt;
     const value = res.cookie('jwt-token', jwt);
-
-    const url = process.env.FRONTEND_BASE_URL + '/auth/api?jwt=' + jwt;
-
-    console.log('redirecting to: ', url);
 
     return res.redirect(url);
   }

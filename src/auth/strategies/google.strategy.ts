@@ -22,15 +22,15 @@ export class GoogleStrategy extends PassportStrategy(Strategy) {
       email = profile.emails[0].value;
       console.log('email', email);
 
-      const jwt = await this.authService.validateGoogleUser(email);
+      const result = await this.authService.validateGoogleUser(email);
 
-      if (!jwt) {
-        return null;
+      if (!result) {
+        return {
+          error: 'account-exists',
+        };
       }
 
-      console.log('jwt', jwt);
-
-      return jwt;
+      return result;
     }
   }
 }

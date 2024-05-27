@@ -58,4 +58,17 @@ export class AuthService {
       jwt_token: this.jwtService.sign(payload),
     };
   }
+
+  async validateJwt(token: any) {
+    try {
+      console.log('Inside JWT Strategy Validate');
+
+      const result = this.jwtService.verify(token);
+      console.log(result);
+
+      return result;
+    } catch {
+      return { error: 'invalid-token' };
+    }
+  }
 }

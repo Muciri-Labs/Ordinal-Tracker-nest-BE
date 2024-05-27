@@ -1,6 +1,6 @@
 import { Strategy, Profile } from 'passport-google-oauth20';
 import { PassportStrategy } from '@nestjs/passport';
-import { AuthService } from '../auth.service';
+import { AuthService } from '../services/auth.service';
 
 export class GoogleStrategy extends PassportStrategy(Strategy) {
   constructor(private readonly authService: AuthService) {

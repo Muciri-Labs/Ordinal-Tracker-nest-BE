@@ -61,4 +61,14 @@ export class UserService {
 
     return hashedPassword;
   }
+
+  async isEmailVerified(email: string): Promise<boolean> {
+    const user = await this.findOneByEmail(email);
+
+    if (!user) {
+      return false;
+    }
+
+    return user.verifyEmail;
+  }
 }

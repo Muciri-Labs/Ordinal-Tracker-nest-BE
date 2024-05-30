@@ -140,4 +140,76 @@ export class AuthController {
       return res.sendStatus(401);
     }
   }
+
+  @UseGuards(EmailVerifiedGuard)
+  @Post('send-reset-token')
+  async resetPassword(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Body() body: any,
+  ) {
+    try {
+      const user = body;
+
+      const userExists = await this.userService.findOneByEmail(user.email);
+
+      if (!userExists) {
+        return res.status(401).json({ message: 'Unauthorized' });
+      }
+
+      await this.emailService.sendResetPasswordEmail(user.email);
+
+      return res.status(200).json({ message: 'OK' });
+    } catch (error) {
+      console.log('error in reset-password: ', error);
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
+  }
+
+  @Post('reset-password')
+  async resetPasswordToken(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Body() body: any,
+  ) {
+    const data = body;
+
+    const token = data.token;
+    const newPassword = data.newPassword;
+
+    try {
+      const decoded = await this.authService.validateJwt(token as string);
+
+      if (decoded.error) {
+        return res.status(401).json({ error: decoded.error });
+      }
+
+      if (decoded.type === 'reset-password') {
+        const user = await this.userService.findOneByEmail(decoded.email);
+
+        if (user) {
+          const hashedPassword =
+            await this.userService.hashPassword(newPassword);
+
+          const result = await this.userService.update({
+            id: user.id,
+            email: user.email,
+            password: hashedPassword,
+            verifyEmail: true,
+          });
+
+          if (result) {
+            return res.sendStatus(200);
+          } else {
+            throw new Error();
+          }
+        }
+      } else {
+        return res.status(401).json({ error: 'Invalid token' });
+      }
+    } catch (error) {
+      console.log('error in reset-password-token: ', error);
+      return res.sendStatus(401);
+    }
+  }
 }

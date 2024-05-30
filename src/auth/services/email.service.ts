@@ -35,4 +35,20 @@ export class EmailService {
 
     console.log({ data });
   }
+
+  async sendResetPasswordEmail(email: string) {
+    const token = this.jwtService.sign({
+      type: 'reset-password',
+      email,
+    });
+
+    const html = this.templateService.getResetPasswordTemplate(token);
+
+    const { data, error } = await this.resend.emails.send({
+      from: 'Storm Glass ⚡ <onboarding@stormglass.xyz>',
+      to: [email],
+      subject: 'Reset your password',
+      html: html,
+    });
+  }
 }

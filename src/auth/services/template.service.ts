@@ -27,4 +27,15 @@ export class TemplateService {
     <h1>Email has been verified!</h1>
     `;
   }
+
+  getResetPasswordTemplate(token: string) {
+    // const url = `${process.env.FRONTEND_BASE_URL}/auth/reset-password-token?token=${token}`;
+
+    const url = `${process.env.FRONTEND_BASE_URL}/auth/reset-password?token=${token}`;
+
+    return `
+    <strong>Click on the following link to reset your password</strong>
+    <a href="${url}">click here!!</a>
+    `;
+  }
 }
